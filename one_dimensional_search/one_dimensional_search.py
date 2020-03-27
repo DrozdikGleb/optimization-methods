@@ -1,5 +1,4 @@
 import math
-import time
 
 
 def dichotomy(func, left, right, eps=1e-1):
@@ -25,7 +24,7 @@ def dichotomy(func, left, right, eps=1e-1):
         else:
             left = x1
             right = x2
-    return func((right + left) / 2), iterations, lefts, rights
+    return (right + left) / 2, iterations, lefts, rights
 
 
 def golden_ratio(func, left, right, eps=1e-1):
@@ -59,7 +58,7 @@ def golden_ratio(func, left, right, eps=1e-1):
             right = x2
         lefts.append(left)
         rights.append(right)
-    return func((left + right) / 2), iterations, lefts, rights
+    return (left + right) / 2, iterations, lefts, rights
 
 
 def fibonacci(func, left, right, eps=1e-1):
@@ -102,7 +101,7 @@ def fibonacci(func, left, right, eps=1e-1):
             right = x2
         lefts.append(left)
         rights.append(right)
-    return func((left + right) / 2), iterations, lefts, rights
+    return (left + right) / 2, iterations, lefts, rights
 
 
 def line_search(func, left, eps=1e-3):
@@ -113,7 +112,7 @@ def line_search(func, left, eps=1e-3):
     while func(right) <= f0 + eps:
         delta *= 2
         right += delta
-    return func(right)
+    return right
 
 
 
