@@ -37,11 +37,12 @@ class Logistic:
 		self.__init_weight(m)
 		Q = self.__evaluate_Q(X, y, n)
 		for s in range(self.amount_steps):
-			gradient = 0
-			for i in range(n):
-				gradient += expit(-y[i] * np.dot(X[i], self.w)) * np.sum([y[i] * X[i][j] for j in range(m)])
-			gradient *= -1 / n
-			gradient += self.lmb * np.sum(self.w)
+			gradient = np.ndarray(m)
+			for j in range(m):
+				for i in range(n):
+					gradient[j] += expit(-y[i] * np.dot(X[i], self.w)) * y[i] * X[i][j]
+				gradient[j] *= -1 / n
+				gradient[j] += self.lmb * self.w[j]
 			self.w = self.w - self.learning_rate * gradient
 
 			new_Q = self.__evaluate_Q(X, y, n)
@@ -104,4 +105,3 @@ if __name__ == '__main__':
 				best_lmb = lmb
 				best_rate = learning_rate
 	print(f'best F-measure: {best_F}, lambda: {best_lmb}, rate: {best_rate}')
-	#make_plot(X, y, 0.01, 0.001)
