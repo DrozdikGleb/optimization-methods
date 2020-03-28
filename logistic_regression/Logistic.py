@@ -5,7 +5,6 @@ from scipy.special import expit
 
 from Utils import k_fold_cross_validation, f_measure
 
-
 CLASSES_NUMBER = 2
 
 
@@ -28,21 +27,31 @@ class Logistic:
 		self.w = np.random.normal(loc=0., scale=1., size=m)
 
 	def __evaluate_Q(self, X, y, n):
-		losses = np.sum([np.logaddexp(0, -y[i] * np.dot(X[i], self.w)) for i in range(n)])
-		regularization = self.lmb / 2 * np.sum(self.w ** 2)
-		return (losses / n) + regularization
+		predictions = np.matmul(X, self.w)
+		margins = predictions * y
+		losses = np.logaddexp(0, -margins)
+		return 1 / n * losses + self.lmb / 2 * np.sum(np.square(self.w))
+
+	def __evaluate_gradient_Q(self, X, y, n):
+		predictions = np.matmul(X, self.w)
+		margins = predictions * y
+		b = expit(-margins)
+		A = np.transpose(X * y.reshape((n, 1)))
+		return -1 / n * np.matmul(A, b) + self.lmb * self.w
+
+	def __evaluate_hessian_Q(self, X, y, n):
+		predictions = np.matmul(X, self.w)
+		margins = predictions * y
+		C = np.transpose(X * expit(-margins).reshape((n, 1)))
+		D = X * expit(margins).reshape((n, 1))
+		return 1 / n * np.matmul(C, D) + self.lmb * np.eye(m)
 
 	def fit(self, X, y):
 		n, m = X.shape
 		self.__init_weight(m)
 		Q = self.__evaluate_Q(X, y, n)
 		for s in range(self.amount_steps):
-			gradient = 0
-			for i in range(n):
-				gradient += expit(-y[i] * np.dot(X[i], self.w)) * np.sum([y[i] * X[i][j] for j in range(m)])
-			gradient *= -1 / n
-			gradient += self.lmb * np.sum(self.w)
-			self.w = self.w - self.learning_rate * gradient
+			self.w = self.w - self.learning_rate * self.__evaluate_gradient_Q(X, y, n)
 
 			new_Q = self.__evaluate_Q(X, y, n)
 			if np.linalg.norm(new_Q - Q) < self.eps:
@@ -93,15 +102,15 @@ def make_plot(X, y, lmb, learning_rate):
 
 if __name__ == '__main__':
 	X, y = read_dataset('data/geyser.csv')
+	n, m = X.shape
 	best_F = -1
 	best_lmb = None
 	best_rate = None
-	for lmb in [0.0001, 0.001, 0.01, 0.1, 1.]:
-		for learning_rate in [1e-3, 1e-8]:
+	for lmb in [1e-4, 1e-3, 1e-2, 1e-1, 1.]:
+		for learning_rate in [1e-3, 1e-5, 1e-8]:
 			f_score = train_dataset(X, y, lmb, learning_rate)
 			if f_score > best_F:
 				best_F = f_score
 				best_lmb = lmb
 				best_rate = learning_rate
 	print(f'best F-measure: {best_F}, lambda: {best_lmb}, rate: {best_rate}')
-	#make_plot(X, y, 0.01, 0.001)
