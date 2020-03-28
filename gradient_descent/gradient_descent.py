@@ -11,7 +11,6 @@ def gradient_descent(func, func_grad, x, step_search_method, const_step=False, s
         step_number += 1
         grad = func_grad(x)
         if not const_step:
-            print(1)
             step = get_step(func, x, grad, step_search_method)
         next_x = x - step * grad
         next_y = func(next_x)
