@@ -1,7 +1,7 @@
 import math
 
 
-def dichotomy(func, left, right, eps=1e-1):
+def dichotomy(func, left, right, eps=1e-3):
     lefts = []
     rights = []
     delta = eps / 3
@@ -27,7 +27,7 @@ def dichotomy(func, left, right, eps=1e-1):
     return (right + left) / 2, iterations, lefts, rights
 
 
-def golden_ratio(func, left, right, eps=1e-1):
+def golden_ratio(func, left, right, eps=1e-5):
     lefts = [left]
     rights = [right]
     iterations = 1
@@ -61,7 +61,7 @@ def golden_ratio(func, left, right, eps=1e-1):
     return (left + right) / 2, iterations, lefts, rights
 
 
-def fibonacci(func, left, right, eps=1e-1):
+def fibonacci(func, left, right, eps=1e-3):
     lefts = [left]
     rights = [right]
     iterations = 1
@@ -105,10 +105,9 @@ def fibonacci(func, left, right, eps=1e-1):
 
 
 def line_search(func, left, eps=1e-3):
-    delta0 = 0.01
     f0 = func(left)
-    right = left + delta0
-    delta = delta0
+    delta = 0.01
+    right = left + delta
     while func(right) <= f0 + eps:
         delta *= 2
         right += delta
